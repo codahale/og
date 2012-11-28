@@ -86,6 +86,34 @@ final BillingService service = graph.get(BillingService.class);
 
 Yep. That'll instantiate everything.
 
+## Names Yo
+
+Sometimes you've got more than one thing of a type. You give them names to keep track of the little
+buggers.
+
+```java
+public class DataSourceModule {
+    @Provides
+    @Named("master")
+    public DataSource getMasterDataSource(@Named("master") JdbcConfiguration config) {
+        // ...
+    }
+
+    @Provides
+    @Named("replica")
+    public DataSource getReplicaDataSource(@Named("replica") JdbcConfiguration config) {
+        // ...
+    }
+}
+```
+
+And:
+
+```java
+graph.addSingleton(masterConfig, "master");
+graph.addSingleton(replicaConfig, "replica");
+```
+
 ----------------------------------------------------------------------------------------------------
 
 (c) 2012 Coda Hale

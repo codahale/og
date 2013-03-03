@@ -40,6 +40,12 @@ public class ObjectGraph {
         }
     }
 
+    public void preload() {
+        for (BindingKey key : entryPoints.keySet()) {
+            get(key.getType(), key.getName());
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T get(TypeToken<T> token, String name) throws DependencyException {
         try {

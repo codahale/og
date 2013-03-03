@@ -81,7 +81,6 @@ public class ObjectGraphTest {
         graph.addModule(mapModule);
         graph.addModule(namedStringModule);
         graph.addModule(immutableListModule);
-        graph.addModule(unprovidableModule);
     }
 
     @Test
@@ -145,6 +144,7 @@ public class ObjectGraphTest {
 
     @Test
     public void throwsANestedDependencyExceptionForTransitivelyUnprovidableTypes() throws Exception {
+        graph.addModule(unprovidableModule);
         try {
             graph.get(Long.class);
             failBecauseExceptionWasNotThrown(DependencyException.class);
@@ -180,5 +180,13 @@ public class ObjectGraphTest {
     public void injectsNamedParameters() throws Exception {
         assertThat(graph.get(String.class, "other"))
                 .isEqualTo("oh yay");
+    }
+
+    @Test
+    public void preloadsSingletons() throws Exception {
+        graph.preload();
+
+        assertThat(listModule.called)
+                .isEqualTo(1);
     }
 }

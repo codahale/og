@@ -74,10 +74,10 @@ public class ObjectGraph {
                 }
             }
         } catch (Exception e) {
-            throw new DependencyException(token, name, e);
+            throw new UnprovidableClassException(token, name, e);
         }
 
-        throw new DependencyException(token, name);
+        throw new UnprovidableClassException(token, name);
     }
 
     public <T> T get(TypeToken<T> token) throws DependencyException {

@@ -9,24 +9,49 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+/**
+ * An object graph. <p> Given a set of singletons and modules (which provide instances given
+ * dependencies), constructs and memoizes instances of various types. </p>
+ */
 public class ObjectGraph {
     private final Map<BindingKey, Object> singletons;
     private final Map<BindingKey, Binding> entryPoints;
 
+    /**
+     * Creates a new object graph.
+     */
     public ObjectGraph() {
         this.singletons = Maps.newHashMap();
         this.entryPoints = Maps.newHashMap();
         addSingleton(this);
     }
 
+    /**
+     * Adds an singleton.
+     *
+     * @param singleton a singleton of any type
+     */
     public void addSingleton(Object singleton) {
         addSingleton(singleton, null);
     }
 
+    /**
+     * Adds a named singleton.
+     *
+     * @param singleton a singleton of any type
+     * @param name      {@code singleton}'s name
+     * @see Named
+     */
     public void addSingleton(Object singleton, String name) {
         singletons.put(new BindingKey(TypeToken.of(singleton.getClass()), name), singleton);
     }
 
+    /**
+     * Adds a module with {@link Provides}-annotated methods that provide instances of objects.
+     *
+     * @param module a module with annotated methods
+     * @see Provides
+     */
     public void addModule(Object module) {
         for (Method method : module.getClass().getDeclaredMethods()) {
             final Provides provides = method.getAnnotation(Provides.class);
@@ -34,18 +59,32 @@ public class ObjectGraph {
             if (provides != null) {
                 method.setAccessible(true);
                 entryPoints.put(new BindingKey(TypeToken.of(method.getGenericReturnType()),
-                                        named == null ? null : named.value()),
+                                               named == null ? null : named.value()),
                                 new Binding(method, module));
             }
         }
     }
 
+    /**
+     * Iterates through all provider methods of all modules and preloads all providable types as
+     * singletons.
+     */
     public void preload() {
         for (BindingKey key : entryPoints.keySet()) {
             get(key.getType(), key.getName());
         }
     }
 
+    /**
+     * Returns an instance of the given type with the given name.
+     *
+     * @param token a {@link TypeToken} of the given type
+     * @param name  the name of the instance
+     * @param <T>   the given type
+     * @return an instance of the given type
+     * @throws DependencyException if an instance of the type cannot be provided
+     * @see Named
+     */
     @SuppressWarnings("unchecked")
     public <T> T get(TypeToken<T> token, String name) throws DependencyException {
         try {
@@ -74,20 +113,46 @@ public class ObjectGraph {
                 }
             }
         } catch (Exception e) {
-            throw new UnprovidableClassException(token, name, e);
+            throw new UnprovidableTypeException(token, name, e);
         }
 
-        throw new UnprovidableClassException(token, name);
+        throw new UnprovidableTypeException(token, name);
     }
 
+    /**
+     * Returns an unnamed instance of the given type.
+     *
+     * @param token a {@link TypeToken} of the given type
+     * @param <T>   the given type
+     * @return an instance of the given type
+     * @throws DependencyException if an instance of the type cannot be provided
+     */
     public <T> T get(TypeToken<T> token) throws DependencyException {
         return get(token, null);
     }
 
+    /**
+     * Returns an unnamed instance of the given class.
+     *
+     * @param klass the given class
+     * @param <T>   the given type
+     * @return an instance of the given type
+     * @throws DependencyException if an instance of the type cannot be provided
+     */
     public <T> T get(Class<T> klass) throws DependencyException {
         return get(klass, null);
     }
 
+    /**
+     * Returns an instance of the given class with the given name.
+     *
+     * @param klass the given class
+     * @param name  the name of the instance
+     * @param <T>   the given type
+     * @return an instance of the given type
+     * @throws DependencyException if an instance of the type cannot be provided
+     * @see Named
+     */
     public <T> T get(Class<T> klass, String name) throws DependencyException {
         return get(TypeToken.of(klass), name);
     }

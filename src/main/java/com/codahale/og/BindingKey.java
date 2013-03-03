@@ -30,15 +30,15 @@ class BindingKey {
         return getType().toString() + (getName() == null ? "" : '/' + getName());
     }
 
-    public TypeToken<?> getType() {
+    TypeToken<?> getType() {
         return type;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public boolean isAssignableFrom(BindingKey key) {
+    boolean isAssignableFrom(BindingKey key) {
         return type.isAssignableFrom(key.type) && (name == null || name.equals(key.name));
     }
 }

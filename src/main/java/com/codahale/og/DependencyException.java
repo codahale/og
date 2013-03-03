@@ -7,7 +7,6 @@ public class DependencyException extends RuntimeException {
         super(formatMessage(token, name));
     }
 
-
     public DependencyException(TypeToken<?> token, String name, Throwable cause) {
         super(formatMessage(token, name), cause);
     }

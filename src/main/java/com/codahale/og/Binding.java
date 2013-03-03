@@ -11,11 +11,11 @@ class Binding {
         this.provider = provider;
     }
 
-    public Object getProvider() {
+    Object getProvider() {
         return provider;
     }
 
-    public Method getMethod() {
+    Method getMethod() {
         return method;
     }
 }

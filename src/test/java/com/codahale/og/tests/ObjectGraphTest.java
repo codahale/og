@@ -151,17 +151,14 @@ public class ObjectGraphTest {
 
     @Test
     public void providesGenericTypesDependentOnSingletons() throws Exception {
-        assertThat(graph.get(new TypeToken<List<String>>() {
-        }))
+        assertThat(graph.get(new TypeToken<List<String>>() {}))
                 .containsOnly("woo");
     }
 
     @Test
-    public void memoizesProvidedObjects() throws Exception {
-        graph.get(new TypeToken<List<String>>() {
-        });
-        graph.get(new TypeToken<List<String>>() {
-        });
+    public void memoizesOnlySingletonAnnotatedObjects() throws Exception {
+        graph.get(new TypeToken<List<String>>() {});
+        graph.get(new TypeToken<List<String>>() {});
 
         assertThat(listModule.called)
                 .isEqualTo(2);
@@ -175,8 +172,7 @@ public class ObjectGraphTest {
 
     @Test
     public void providesGenericTypesDependentOnProvidedTypes() throws Exception {
-        assertThat(graph.get(new TypeToken<Map<String, Integer>>() {
-        }))
+        assertThat(graph.get(new TypeToken<Map<String, Integer>>() {}))
                 .isEqualTo(ImmutableMap.of("woo", 3));
     }
 
@@ -225,16 +221,14 @@ public class ObjectGraphTest {
 
     @Test
     public void providesSuperclassTypes() throws Exception {
-        assertThat(graph.get(new TypeToken<List<Integer>>() {
-        }))
+        assertThat(graph.get(new TypeToken<List<Integer>>() {}))
                 .containsOnly(1, 2, 3);
     }
 
     @Test
     public void checksTheNameOfSuperclassTypes() throws Exception {
         try {
-            graph.get(new TypeToken<List<Integer>>() {
-            }, "woo");
+            graph.get(new TypeToken<List<Integer>>() {}, "woo");
             failBecauseExceptionWasNotThrown(DependencyException.class);
         } catch (DependencyException e) {
             assertThat(e.getMessage())

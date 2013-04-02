@@ -70,6 +70,62 @@ public class ObjectGraphTest {
         }
     }
 
+    private static class FirstLongModule {
+        @Provides
+        public Long getString() {
+            return 1L;
+        }
+    }
+
+    private static class SecondLongModule {
+        @Provides
+        public Long getString() {
+            return 2L;
+        }
+    }
+
+    private static class PrimitiveModule {
+        @Provides
+        public byte getByte() {
+            return 10;
+        }
+
+        @Provides
+        public short getShort() {
+            return 20;
+        }
+
+        @Provides
+        public int getInt() {
+            return 30;
+        }
+
+        @Provides
+        public long getLong() {
+            return 40;
+        }
+
+        @Provides
+        public float getFloat() {
+            return 50;
+        }
+
+        @Provides
+        public double getDouble() {
+            return 60;
+        }
+
+        @Provides
+        public boolean getBoolean() {
+            return true;
+        }
+
+        @Provides
+        public char getChar() {
+            return 'A';
+        }
+    }
+
     private final ObjectGraph graph = new ObjectGraph();
 
     private final ListModule listModule = new ListModule();
@@ -211,5 +267,58 @@ public class ObjectGraphTest {
 
         assertThat(graph.get(Long.class))
                 .isEqualTo(2);
+    }
+
+    @Test
+    public void mapsPrimitiveTypes() throws Exception {
+        graph.addModule(new PrimitiveModule());
+
+        assertThat(graph.get(Byte.class))
+                .isEqualTo((byte) 10);
+
+        assertThat(graph.get(byte.class))
+                .isEqualTo((byte) 10);
+
+        assertThat(graph.get(Short.class))
+                .isEqualTo((short) 20);
+
+        assertThat(graph.get(short.class))
+                .isEqualTo((short) 20);
+
+        assertThat(graph.get(Integer.class))
+                .isEqualTo(30);
+
+        assertThat(graph.get(int.class))
+                .isEqualTo(30);
+
+        assertThat(graph.get(Long.class))
+                .isEqualTo(40);
+
+        assertThat(graph.get(long.class))
+                .isEqualTo(40);
+
+        assertThat(graph.get(Float.class))
+                .isEqualTo(50);
+
+        assertThat(graph.get(float.class))
+                .isEqualTo(50);
+
+        assertThat(graph.get(Double.class))
+                .isEqualTo(60);
+
+        assertThat(graph.get(double.class))
+                .isEqualTo(60);
+
+        assertThat(graph.get(Boolean.class))
+                .isTrue();
+
+        assertThat(graph.get(boolean.class))
+                .isTrue();
+
+        assertThat(graph.get(Character.class))
+                .isEqualTo('A');
+
+        assertThat(graph.get(char.class))
+                .isEqualTo('A');
     }
 }

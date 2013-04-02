@@ -59,7 +59,7 @@ public class ObjectGraph {
             final Singleton singleton = method.getAnnotation(Singleton.class);
             if (provides != null) {
                 method.setAccessible(true);
-                entryPoints.put(new BindingKey(TypeToken.of(method.getGenericReturnType()),
+                entryPoints.put(new BindingKey(TypeToken.of(mapType(method.getGenericReturnType())),
                                                named == null ? null : named.value()),
                                 new Binding(method, module, singleton != null));
             }
@@ -92,7 +92,7 @@ public class ObjectGraph {
     @SuppressWarnings("unchecked")
     public <T> T get(TypeToken<T> token, String name) throws DependencyException {
         try {
-            final BindingKey key = new BindingKey(token, name);
+            final BindingKey key = new BindingKey(TypeToken.of(mapType(token.getType())), name);
 
             // check for singletons
             final Object singleton = singletons.get(key);
@@ -184,6 +184,43 @@ public class ObjectGraph {
             }
         }
         return null;
+    }
+
+    // map primitive types to their boxed types
+    private Type mapType(Type type) {
+        if (byte.class.equals(type)) {
+            return Byte.class;
+        }
+
+        if (short.class.equals(type)) {
+            return Short.class;
+        }
+
+        if (int.class.equals(type)) {
+            return Integer.class;
+        }
+
+        if (long.class.equals(type)) {
+            return Long.class;
+        }
+
+        if (float.class.equals(type)) {
+            return Float.class;
+        }
+
+        if (double.class.equals(type)) {
+            return Double.class;
+        }
+
+        if (boolean.class.equals(type)) {
+            return Boolean.class;
+        }
+
+        if (char.class.equals(type)) {
+            return Character.class;
+        }
+
+        return type;
     }
 }
 

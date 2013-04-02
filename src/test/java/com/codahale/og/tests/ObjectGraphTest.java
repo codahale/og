@@ -1,9 +1,6 @@
 package com.codahale.og.tests;
 
-import com.codahale.og.DependencyException;
-import com.codahale.og.Named;
-import com.codahale.og.ObjectGraph;
-import com.codahale.og.Provides;
+import com.codahale.og.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
@@ -24,6 +21,13 @@ public class ObjectGraphTest {
         List<String> getList(String s) {
             this.called++;
             return ImmutableList.of(s);
+        }
+
+        @Provides
+        @Singleton
+        List<Long> getList() {
+            this.called++;
+            return ImmutableList.of();
         }
     }
 
@@ -104,7 +108,13 @@ public class ObjectGraphTest {
         });
 
         assertThat(listModule.called)
-                .isEqualTo(1);
+                .isEqualTo(2);
+
+        graph.get(new TypeToken<List<Long>>() {});
+        graph.get(new TypeToken<List<Long>>() {});
+
+        assertThat(listModule.called)
+                .isEqualTo(3);
     }
 
     @Test
@@ -188,5 +198,18 @@ public class ObjectGraphTest {
 
         assertThat(listModule.called)
                 .isEqualTo(1);
+    }
+
+    @Test
+    public void overridesExistingModules() throws Exception {
+        graph.addModule(new FirstLongModule());
+
+        assertThat(graph.get(Long.class))
+                .isEqualTo(1);
+
+        graph.addModule(new SecondLongModule());
+
+        assertThat(graph.get(Long.class))
+                .isEqualTo(2);
     }
 }

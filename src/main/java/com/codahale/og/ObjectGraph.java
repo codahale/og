@@ -56,11 +56,12 @@ public class ObjectGraph {
         for (Method method : module.getClass().getDeclaredMethods()) {
             final Provides provides = method.getAnnotation(Provides.class);
             final Named named = method.getAnnotation(Named.class);
+            final Singleton singleton = method.getAnnotation(Singleton.class);
             if (provides != null) {
                 method.setAccessible(true);
                 entryPoints.put(new BindingKey(TypeToken.of(method.getGenericReturnType()),
                                                named == null ? null : named.value()),
-                                new Binding(method, module));
+                                new Binding(method, module, singleton != null));
             }
         }
     }
@@ -70,8 +71,11 @@ public class ObjectGraph {
      * singletons.
      */
     public void preload() {
-        for (BindingKey key : entryPoints.keySet()) {
-            get(key.getType(), key.getName());
+        for (Map.Entry<BindingKey, Binding> entry : entryPoints.entrySet()) {
+            if (entry.getValue().isSingleton()) {
+                final BindingKey key = entry.getKey();
+                get(key.getType(), key.getName());
+            }
         }
     }
 
@@ -100,7 +104,9 @@ public class ObjectGraph {
             final Binding binding = entryPoints.get(key);
             if (binding != null) {
                 final Object o = get(binding);
-                singletons.put(key, o);
+                if (binding.isSingleton()) {
+                    singletons.put(key, o);
+                }
                 return (T) o;
             }
 
@@ -108,7 +114,9 @@ public class ObjectGraph {
             for (Map.Entry<BindingKey, Binding> entry : entryPoints.entrySet()) {
                 if (key.isAssignableFrom(entry.getKey())) {
                     final Object o = get(entry.getValue());
-                    singletons.put(key, o);
+                    if (entry.getValue().isSingleton()) {
+                        singletons.put(key, o);
+                    }
                     return (T) o;
                 }
             }
